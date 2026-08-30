@@ -7,7 +7,7 @@ export const metadata = {
 },
   // 🔽 아래 구글 인증 코드 추가
   verification: {
-    google: 'o-543sv7N8YvctB1Q8v6bAPLuv2vSdQ4J5E1Zs06A1I',
+    google: <meta name="google-site-verification" content="o-543sv7N8YvctB1Q8v6BAPLuv2vSdQ4J5E1Zs06A1I" />
   },
 };
 
