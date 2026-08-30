@@ -3,13 +3,12 @@ import { useState } from 'react';
 
 const TRANSLATIONS = {
   KO: {
-    title: '글로벌 멀티 복리 계산기',
+    title: '글로벌 스마트 복리 계산기',
     subtitle: '일/월/년 단위 맞춤형 복리 성장 및 회차별 상세 스케줄',
     langBtn: 'English',
     currency: '통화 단위 선택',
     periodType: '계산 주기 (기간)',
     periodValue: '투자 기간',
-    rateType: '적용 이율 기준',
     rateValue: '수익률 (%)',
     principal: '초기 투자금',
     contribution: '주기별 추가 적립액',
@@ -41,7 +40,6 @@ const TRANSLATIONS = {
     currency: 'Select Currency',
     periodType: 'Period Unit',
     periodValue: 'Duration',
-    rateType: 'Interest Rate Base',
     rateValue: 'Interest Rate (%)',
     principal: 'Initial Principal',
     contribution: 'Additional Deposit',
@@ -68,22 +66,22 @@ const TRANSLATIONS = {
   }
 };
 
+// 기준 환율 (1 단위당 KRW 가치)
 const CURRENCIES = [
-  { code: 'KRW', label: '🇰🇷 KRW (원)', locale: 'ko-KR', fraction: 0 },
-  { code: 'USD', label: '🇺🇸 USD ($)', locale: 'en-US', fraction: 2 },
-  { code: 'EUR', label: '🇪🇺 EUR (€)', locale: 'de-DE', fraction: 2 },
-  { code: 'JPY', label: '🇯🇵 JPY (¥)', locale: 'ja-JP', fraction: 0 },
-  { code: 'GBP', label: '🇬🇧 GBP (£)', locale: 'en-GB', fraction: 2 },
-  { code: 'CAD', label: '🇨🇦 CAD ($)', locale: 'en-CA', fraction: 2 },
-  { code: 'AUD', label: '🇦🇺 AUD ($)', locale: 'en-AU', fraction: 2 },
-  { code: 'CNY', label: '🇨🇳 CNY (¥)', locale: 'zh-CN', fraction: 2 },
+  { code: 'KRW', label: '🇰🇷 KRW (원)', locale: 'ko-KR', fraction: 0, rateToKRW: 1 },
+  { code: 'USD', label: '🇺🇸 USD ($)', locale: 'en-US', fraction: 2, rateToKRW: 1350 },
+  { code: 'EUR', label: '🇪🇺 EUR (€)', locale: 'de-DE', fraction: 2, rateToKRW: 1450 },
+  { code: 'JPY', label: '🇯🇵 JPY (¥)', locale: 'ja-JP', fraction: 0, rateToKRW: 9 },
+  { code: 'GBP', label: '🇬🇧 GBP (£)', locale: 'en-GB', fraction: 2, rateToKRW: 1700 },
+  { code: 'CAD', label: '🇨🇦 CAD ($)', locale: 'en-CA', fraction: 2, rateToKRW: 1000 },
+  { code: 'AUD', label: '🇦🇺 AUD ($)', locale: 'en-AU', fraction: 2, rateToKRW: 900 },
+  { code: 'CNY', label: '🇨🇳 CNY (¥)', locale: 'zh-CN', fraction: 2, rateToKRW: 185 },
 ];
 
 export default function CompoundCalculator() {
   const [lang, setLang] = useState('KO');
   const [currency, setCurrency] = useState('KRW');
   const [periodType, setPeriodType] = useState('day'); // 'day', 'month', 'year'
-  const [rateType, setRateType] = useState('daily');   // 'daily', 'monthly', 'annual'
   const [periodValue, setPeriodValue] = useState(30);
   const [rateValue, setRateValue] = useState(1);       // 기본 1%
   const [principal, setPrincipal] = useState(1000000);  // 기본 100만원
@@ -91,12 +89,22 @@ export default function CompoundCalculator() {
 
   const t = TRANSLATIONS[lang];
 
-  // 계산 주기 변경 시 이율 기준도 자연스럽게 매칭
-  const handlePeriodChange = (type) => {
-    setPeriodType(type);
-    if (type === 'day') setRateType('daily');
-    else if (type === 'month') setRateType('monthly');
-    else setRateType('annual');
+  // 통화 변경 시 환율 계산 적용
+  const handleCurrencyChange = (newCurrencyCode) => {
+    const oldCur = CURRENCIES.find((c) => c.code === currency);
+    const newCur = CURRENCIES.find((c) => c.code === newCurrencyCode);
+    
+    if (oldCur && newCur) {
+      const conversionFactor = oldCur.rateToKRW / newCur.rateToKRW;
+      
+      const newPrincipal = Math.round(Number(principal) * conversionFactor * 100) / 100;
+      const newContribution = Math.round(Number(contribution) * conversionFactor * 100) / 100;
+      
+      setPrincipal(newPrincipal);
+      setContribution(newContribution);
+    }
+    
+    setCurrency(newCurrencyCode);
   };
 
   // 복리 계산 로직
@@ -104,20 +112,7 @@ export default function CompoundCalculator() {
     let currentBalance = Number(principal) || 0;
     let currentInvested = Number(principal) || 0;
     const periods = Math.min(Math.max(1, Number(periodValue) || 1), 3650);
-
-    const rateNum = Number(rateValue) || 0;
-    let ratePerPeriod = 0;
-
-    // 이율 기준에 따른 회차당 이율 계산
-    if (rateType === 'daily') {
-      ratePerPeriod = (periodType === 'day') ? rateNum / 100 : (rateNum * 365) / 100;
-    } else if (rateType === 'monthly') {
-      ratePerPeriod = (periodType === 'month') ? rateNum / 100 : (rateNum / 30) / 100;
-    } else { // annual (연 이율)
-      if (periodType === 'day') ratePerPeriod = (rateNum / 100) / 365;
-      else if (periodType === 'month') ratePerPeriod = (rateNum / 100) / 12;
-      else ratePerPeriod = rateNum / 100;
-    }
+    const ratePerPeriod = (Number(rateValue) || 0) / 100;
 
     const schedule = [];
     const contribNum = Number(contribution) || 0;
@@ -159,6 +154,12 @@ export default function CompoundCalculator() {
     return t.yearUnit;
   };
 
+  const getRateLabel = () => {
+    if (periodType === 'day') return t.rateDaily;
+    if (periodType === 'month') return t.rateMonthly;
+    return t.rateAnnual;
+  };
+
   const getContribLabel = () => {
     if (periodType === 'day') return t.contribDaily;
     if (periodType === 'month') return t.contribMonthly;
@@ -193,7 +194,7 @@ export default function CompoundCalculator() {
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#4b5563', marginBottom: '6px' }}>{t.currency}</label>
               <select
                 value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
+                onChange={(e) => handleCurrencyChange(e.target.value)}
                 style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '15px' }}
               >
                 {CURRENCIES.map((c) => (
@@ -209,7 +210,7 @@ export default function CompoundCalculator() {
                 {['day', 'month', 'year'].map((type) => (
                   <button
                     key={type}
-                    onClick={() => handlePeriodChange(type)}
+                    onClick={() => setPeriodType(type)}
                     style={{
                       flex: 1,
                       padding: '10px',
@@ -227,20 +228,6 @@ export default function CompoundCalculator() {
               </div>
             </div>
 
-            {/* 이율 기준 선택 (일 이율/월 이율/연 이율) */}
-            <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#4b5563', marginBottom: '6px' }}>{t.rateType}</label>
-              <select
-                value={rateType}
-                onChange={(e) => setRateType(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '15px', backgroundColor: '#eff6ff' }}
-              >
-                <option value="daily">{t.rateDaily}</option>
-                <option value="monthly">{t.rateMonthly}</option>
-                <option value="annual">{t.rateAnnual}</option>
-              </select>
-            </div>
-
             {/* 초기 투자금 */}
             <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#4b5563', marginBottom: '6px' }}>{t.principal}</label>
@@ -255,7 +242,7 @@ export default function CompoundCalculator() {
             {/* 수익률 값 */}
             <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#2563eb', marginBottom: '6px' }}>
-                {rateType === 'daily' ? t.rateDaily : rateType === 'monthly' ? t.rateMonthly : t.rateAnnual}
+                {getRateLabel()}
               </label>
               <input
                 type="number"
@@ -278,7 +265,7 @@ export default function CompoundCalculator() {
             </div>
 
             {/* 주기별 적립액 */}
-            <div style={{ gridColumn: '1 / -1' }}>
+            <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#4b5563', marginBottom: '6px' }}>{getContribLabel()}</label>
               <input
                 type="number"
