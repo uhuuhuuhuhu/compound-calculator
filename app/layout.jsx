@@ -4,6 +4,10 @@ export const metadata = {
   openGraph: {
     title: '일복리계산기 - 복리플로우 📈',
     description: '내 자산은 30일 뒤 얼마가 될까? 실시간 일복리 시뮬레이션',
+},
+  // 🔽 아래 구글 인증 코드 추가
+  verification: {
+    google: '복사한_content_값_입력', <meta name="google-site-verification" content="o-543sv7N8YvctB1Q8v6BAPLuv2vSdQ4J5E1Zs06A1I" />
   },
 };
 
