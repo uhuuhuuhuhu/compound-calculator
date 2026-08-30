@@ -70,7 +70,7 @@ const CURRENCIES = [
 export default function CompoundCalculator() {
   const [lang, setLang] = useState('KO');
   const [currency, setCurrency] = useState('KRW');
-  const [periodType, setPeriodType] = useState('year'); // 'day', 'month', 'year'
+  const [periodType, setPeriodType] = useState('year');
   const [periodValue, setPeriodValue] = useState(10);
   const [principal, setPrincipal] = useState(10000000);
   const [contribution, setContribution] = useState(500000);
@@ -78,11 +78,10 @@ export default function CompoundCalculator() {
 
   const t = TRANSLATIONS[lang];
 
-  // 복리 및 회차별 스케줄 계산 로직
   const calculateSchedule = () => {
     let currentBalance = Number(principal) || 0;
     let currentInvested = Number(principal) || 0;
-    const periods = Math.min(Math.max(1, Number(periodValue) || 1), 3650); // 최대 3,650회 제한
+    const periods = Math.min(Math.max(1, Number(periodValue) || 1), 3650);
 
     let ratePerPeriod = 0;
     const rateNum = Number(annualRate) || 0;
@@ -134,7 +133,6 @@ export default function CompoundCalculator() {
     <div style={{ backgroundColor: '#f3f4f6', minHeight: '100vh', padding: '40px 15px', fontFamily: 'sans-serif' }}>
       <div style={{ maxWidth: '900px', margin: '0 auto', backgroundColor: '#fff', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
         
-        {/* 상단 헤더 & 언어 전환 버튼 */}
         <header style={{ backgroundColor: '#0f172a', color: '#fff', padding: '25px 30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
           <div>
             <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 'bold' }}>{t.title}</h1>
@@ -149,10 +147,8 @@ export default function CompoundCalculator() {
         </header>
 
         <div style={{ padding: '30px' }}>
-          {/* 입력 필드 레이아웃 */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '30px' }}>
             
-            {/* 통화 선택 */}
             <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#4b5563', marginBottom: '6px' }}>{t.currency}</label>
               <select
@@ -166,7 +162,6 @@ export default function CompoundCalculator() {
               </select>
             </div>
 
-            {/* 기간 단위 선택 */}
             <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#4b5563', marginBottom: '6px' }}>{t.periodType}</label>
               <div style={{ display: 'flex', gap: '5px' }}>
@@ -191,7 +186,6 @@ export default function CompoundCalculator() {
               </div>
             </div>
 
-            {/* 초기 투자금 */}
             <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#4b5563', marginBottom: '6px' }}>{t.principal}</label>
               <input
@@ -202,7 +196,6 @@ export default function CompoundCalculator() {
               />
             </div>
 
-            {/* 주기별 적립액 */}
             <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#4b5563', marginBottom: '6px' }}>{t.contribution}</label>
               <input
@@ -213,7 +206,6 @@ export default function CompoundCalculator() {
               />
             </div>
 
-            {/* 기간 값 */}
             <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#4b5563', marginBottom: '6px' }}>{t.periodValue} ({t[periodType]})</label>
               <input
@@ -224,7 +216,6 @@ export default function CompoundCalculator() {
               />
             </div>
 
-            {/* 연 수익률 */}
             <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#4b5563', marginBottom: '6px' }}>{t.annualRate}</label>
               <input
@@ -238,7 +229,6 @@ export default function CompoundCalculator() {
 
           </div>
 
-          {/* 주요 결과 요약 카드 */}
           <div style={{ backgroundColor: '#f8fafc', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '30px' }}>
             <h2 style={{ margin: '0 0 15px 0', fontSize: '16px', color: '#1e293b' }}>{t.summaryTitle}</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
@@ -257,7 +247,6 @@ export default function CompoundCalculator() {
             </div>
           </div>
 
-          {/* 회차별 변동 스케줄 표 */}
           <div>
             <h2 style={{ margin: '0 0 15px 0', fontSize: '16px', color: '#1e293b' }}>{t.scheduleTitle}</h2>
             <div style={{ maxHeight: '350px', overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
@@ -287,7 +276,5 @@ export default function CompoundCalculator() {
         </div>
       </div>
     </div>
-  );
-}
   );
 }
