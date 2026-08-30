@@ -66,16 +66,15 @@ const TRANSLATIONS = {
   }
 };
 
-// 기준 환율 (1 단위당 KRW 가치)
 const CURRENCIES = [
-  { code: 'KRW', label: '🇰🇷 KRW (원)', locale: 'ko-KR', fraction: 0, rateToKRW: 1 },
-  { code: 'USD', label: '🇺🇸 USD ($)', locale: 'en-US', fraction: 2, rateToKRW: 1350 },
-  { code: 'EUR', label: '🇪🇺 EUR (€)', locale: 'de-DE', fraction: 2, rateToKRW: 1450 },
-  { code: 'JPY', label: '🇯🇵 JPY (¥)', locale: 'ja-JP', fraction: 0, rateToKRW: 9 },
-  { code: 'GBP', label: '🇬🇧 GBP (£)', locale: 'en-GB', fraction: 2, rateToKRW: 1700 },
-  { code: 'CAD', label: '🇨🇦 CAD ($)', locale: 'en-CA', fraction: 2, rateToKRW: 1000 },
-  { code: 'AUD', label: '🇦🇺 AUD ($)', locale: 'en-AU', fraction: 2, rateToKRW: 900 },
-  { code: 'CNY', label: '🇨🇳 CNY (¥)', locale: 'zh-CN', fraction: 2, rateToKRW: 185 },
+  { code: 'KRW', label: '🇰🇷 KRW (원)', locale: 'ko-KR', fraction: 0 },
+  { code: 'USD', label: '🇺🇸 USD ($)', locale: 'en-US', fraction: 2 },
+  { code: 'EUR', label: '🇪🇺 EUR (€)', locale: 'de-DE', fraction: 2 },
+  { code: 'JPY', label: '🇯🇵 JPY (¥)', locale: 'ja-JP', fraction: 0 },
+  { code: 'GBP', label: '🇬🇧 GBP (£)', locale: 'en-GB', fraction: 2 },
+  { code: 'CAD', label: '🇨🇦 CAD ($)', locale: 'en-CA', fraction: 2 },
+  { code: 'AUD', label: '🇦🇺 AUD ($)', locale: 'en-AU', fraction: 2 },
+  { code: 'CNY', label: '🇨🇳 CNY (¥)', locale: 'zh-CN', fraction: 2 },
 ];
 
 export default function CompoundCalculator() {
@@ -88,24 +87,6 @@ export default function CompoundCalculator() {
   const [contribution, setContribution] = useState(0);
 
   const t = TRANSLATIONS[lang];
-
-  // 통화 변경 시 환율 계산 적용
-  const handleCurrencyChange = (newCurrencyCode) => {
-    const oldCur = CURRENCIES.find((c) => c.code === currency);
-    const newCur = CURRENCIES.find((c) => c.code === newCurrencyCode);
-    
-    if (oldCur && newCur) {
-      const conversionFactor = oldCur.rateToKRW / newCur.rateToKRW;
-      
-      const newPrincipal = Math.round(Number(principal) * conversionFactor * 100) / 100;
-      const newContribution = Math.round(Number(contribution) * conversionFactor * 100) / 100;
-      
-      setPrincipal(newPrincipal);
-      setContribution(newContribution);
-    }
-    
-    setCurrency(newCurrencyCode);
-  };
 
   // 복리 계산 로직
   const calculateSchedule = () => {
@@ -194,7 +175,7 @@ export default function CompoundCalculator() {
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#4b5563', marginBottom: '6px' }}>{t.currency}</label>
               <select
                 value={currency}
-                onChange={(e) => handleCurrencyChange(e.target.value)}
+                onChange={(e) => setCurrency(e.target.value)}
                 style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '15px' }}
               >
                 {CURRENCIES.map((c) => (
